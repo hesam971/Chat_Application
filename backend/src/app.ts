@@ -1,17 +1,74 @@
-// Import the 'express' module along with 'Request' and 'Response' types from express
 import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { URL } from './database/congif';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import  userInformation  from './database/schema'
+import bcrypt from 'bcrypt';
+
+type UserInfo = {
+  username: string;
+  lastname: string;
+  email: string;
+  password: string;
+};
+
 
 // Create an Express application
 const app = express();
 
+app.use(bodyParser.json());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  }));
+
+// Connect to the database
+mongoose.connect(URL)
+.then(() => {
+  // Log a message when the connection is successful
+  console.log('Connected to the database');
+}).catch((error) => {
+  // Log an error message if there is an error connecting to the database
+  console.log('Error connecting to the database: ', error);
+})
+
+
+app.post('/register', async (req: Request, res: Response) => {
+  const {username, lastname, email, password}: UserInfo = req.body
+
+  try{
+    const user = await userInformation.findOne({email})
+    if(user){
+      res.status(400).json({message:'user is already exist'})
+    }else{
+      bcrypt.hash(password, 10, function(err, hash) {
+        // Store hash in your password DB.
+        if(err){
+          console.log(err)
+        }else{
+          const newUser = new userInformation({
+            username,
+            lastname,
+            email,
+            password:hash
+          })
+          newUser.save()
+          res.status(201).json({message:'user is created'})
+        }
+    });
+
+    }
+  }catch(error){
+    res.status(400).json({message:error})
+  }
+    
+  
+})
+
+
 // Specify the port number for the server
 const port: number = 3000;
-
-// Define a route for the root path ('/')
-app.get('/', (req: Request, res: Response) => {
-  // Send a response to the client
-  res.send('Hello, TypeScript + Node.js + Express!');
-});
 
 // Start the server and listen on the specified port
 app.listen(port, () => {
