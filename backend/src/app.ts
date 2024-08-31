@@ -62,8 +62,25 @@ app.post('/register', async (req: Request, res: Response) => {
   }catch(error){
     res.status(400).json({message:error})
   }
-    
-  
+})
+
+
+app.post('/login', async (req: Request, res: Response) => {
+  const {email, password}: Omit<UserInfo, 'username' | 'lastname'> = req.body
+
+  const user = await userInformation.findOne({email})
+
+  if(!user){
+    res.status(400).json({message:'user is not exist'})
+  }else{
+    bcrypt.compare(password, user.password, function(err, result: boolean) {
+      if(!result){
+        res.status(400).json({message: 'password incorrect'})
+      }else{
+        res.status(201).json({message: 'login success', userId:user._id})
+      }
+  });
+  }
 })
 
 

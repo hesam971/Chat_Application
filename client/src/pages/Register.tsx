@@ -22,8 +22,10 @@ function Register() {
         e.preventDefault()
         if(!username || !lastname || !email || !password){
             SetError('All fields are required')
+            clearInformation()
         }else if(password.length < 8){
             SetError('password must be at least 8 characters')
+            clearInformation()
         }else{
             const fetchUserInfo: UserInfo = {username, lastname, email, password}
             const postData = async () => {
@@ -31,13 +33,21 @@ function Register() {
                     const response: AxiosResponse = await axios.post('http://localhost:3000/register', fetchUserInfo)
                     console.log(response.data.message)
                     navigate("/login", {replace: true});
-                } catch (error) {
-                    console.log(error)
+                } catch (error: any) {
+                    SetError(error.response.data.message)
+                    clearInformation()
                 }
             }
 
             postData()
         }
+    }
+
+    function clearInformation () {
+        SetUsername('')
+        SetLastname('')
+        SetEmail('')
+        SetPassowrd('')
     }
 
   return (
