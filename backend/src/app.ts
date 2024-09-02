@@ -5,6 +5,25 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import  userInformation  from './database/schema'
 import bcrypt from 'bcrypt';
+import http from 'http'
+import {Server} from 'socket.io'
+
+
+// Create an Express application
+const app = express();
+
+app.use(bodyParser.json());
+app.use(cors());
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
 
 type UserInfo = {
   username: string;
@@ -14,14 +33,7 @@ type UserInfo = {
 };
 
 
-// Create an Express application
-const app = express();
 
-app.use(bodyParser.json());
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-  }));
 
 // Connect to the database
 mongoose.connect(URL)
@@ -81,6 +93,24 @@ app.post('/login', async (req: Request, res: Response) => {
       }
   });
   }
+})
+
+
+app.get('/dashboard/:id', async (req: Request, res: Response) => {
+  const userId = req.params.id
+  const user = await userInformation.findById(userId).select('username')
+  if(!user){
+    res.status(400).json({message:'user is not exist'})
+  }else{
+    res.status(201).json({message: 'login success', username:user.username})
+  }
+})
+
+
+
+io.on('connection', (socket) => {
+  console.log('connect')
+  socket.emit('message',{message: 'hello world'})
 })
 
 
