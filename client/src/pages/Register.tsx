@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import axios, { AxiosResponse } from 'axios';
 import { useNavigate } from "react-router-dom";
-import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000')
 
 type UserInfo = {
     username: string,
@@ -52,11 +50,6 @@ function Register() {
         SetPassowrd('')
     }
 
-    useEffect(() => {
-        socket.on('message', (data) => {
-            console.log(data.message)
-        })
-    },[])
 
   return (
     <>

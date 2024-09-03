@@ -107,18 +107,22 @@ app.get('/dashboard/:id', async (req: Request, res: Response) => {
 })
 
 
-
+// Listen for incoming socket.io connections
 io.on('connection', (socket) => {
-  console.log('connect')
-  socket.emit('message',{message: 'hello world'})
-})
+  console.log('A user connected:', socket.id);
+  // Handle incoming messages from the client
+  socket.emit('message', {message: 'Hello world'})
+  socket.on('requestMessage', (data) => {
+    console.log('that is the data', data)
+  })
+});
 
 
 // Specify the port number for the server
 const port: number = 3000;
 
 // Start the server and listen on the specified port
-app.listen(port, () => {
+server.listen(port, () => {
   // Log a message when the server is successfully running
   console.log(`Server is running on http://localhost:${port}`);
 });
