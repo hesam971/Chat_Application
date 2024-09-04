@@ -38,7 +38,6 @@ function Register() {
                     clearInformation()
                 }
             }
-
             postData()
         }
     }

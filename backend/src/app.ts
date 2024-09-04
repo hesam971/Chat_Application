@@ -110,12 +110,29 @@ app.get('/dashboard/:id', async (req: Request, res: Response) => {
 // Listen for incoming socket.io connections
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
-  // Handle incoming messages from the client
-  socket.emit('message', {message: 'Hello world'})
-  socket.on('requestMessage', (data) => {
-    console.log('that is the data', data)
-  })
+
+    // Emit a message back to the client
+    socket.on('join_room', (data) => {
+      socket.join(data.chatRoom)
+      console.log(data)
+    })
+
+    socket.on("send_message", (data) => {
+      socket.to(data.chatRoom).emit("receive_message", data);
+      // io.to(data.chatRoom).emit("receive_message", data);
+      console.log(data.chatRoom)
+      console.log(data)
+    });
+
+
+    socket.on('disconnect', () => {
+      console.log('A user disconnected:', socket.id);
+    })  
 });
+
+
+
+
 
 
 // Specify the port number for the server
