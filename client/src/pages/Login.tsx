@@ -19,7 +19,8 @@ function Login() {
       try {
         const response = await axios.post('http://localhost:3000/login', loginInfo)
         console.log(response.data.message)
-        const {userId} = response.data
+        const {userId, tokenId} = response.data
+        console.log(tokenId)
         navigate('/dashboard/' + userId, {replace: true})
       } catch (error: any) {
         SetError(error.response.data.message)

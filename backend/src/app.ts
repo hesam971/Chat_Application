@@ -7,7 +7,7 @@ import  userInformation  from './database/schema'
 import bcrypt from 'bcrypt';
 import http from 'http'
 import {Server} from 'socket.io'
-
+import jwt from'jsonwebtoken';
 
 // Create an Express application
 const app = express();
@@ -89,11 +89,22 @@ app.post('/login', async (req: Request, res: Response) => {
       if(!result){
         res.status(400).json({message: 'password incorrect'})
       }else{
-        res.status(201).json({message: 'login success', userId:user._id})
+        jwt.sign({ _id: user._id }, "YOUR_SECRET", { expiresIn: "1d"}, (err, token) => {
+          if(err){
+            res.status(400).json({message: 'token error'})
+          }else{
+            console.log(token)
+          
+            res.status(201).json({message: 'login success', userId:user._id, tokenId: token})
+          }
+        });
+
       }
   });
   }
 })
+
+
 
 
 app.get('/dashboard/:id', async (req: Request, res: Response) => {
