@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom' 
 
 
 function Login() {
@@ -18,9 +18,8 @@ function Login() {
       const loginInfo = {email, password}
       try {
         const response = await axios.post('http://localhost:3000/login', loginInfo)
-        console.log(response.data.message)
         const {userId, tokenId} = response.data
-        console.log(tokenId)
+        localStorage.setItem("token", tokenId);
         navigate('/dashboard/' + userId, {replace: true})
       } catch (error: any) {
         SetError(error.response.data.message)

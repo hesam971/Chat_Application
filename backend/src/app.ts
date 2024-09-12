@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { URL } from './database/congif';
 import cors from 'cors';
@@ -8,19 +8,24 @@ import bcrypt from 'bcrypt';
 import http from 'http'
 import {Server} from 'socket.io'
 import jwt from'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 
 // Create an Express application
 const app = express();
+app.use(cookieParser());
+
+app.use(cors({
+  credentials: true
+}));
 
 app.use(bodyParser.json());
-app.use(cors());
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
   }
 });
 
@@ -89,24 +94,40 @@ app.post('/login', async (req: Request, res: Response) => {
       if(!result){
         res.status(400).json({message: 'password incorrect'})
       }else{
-        jwt.sign({ _id: user._id }, "YOUR_SECRET", { expiresIn: "1d"}, (err, token) => {
+        const token = jwt.sign({ _id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
           if(err){
             res.status(400).json({message: 'token error'})
           }else{
-            console.log(token)
-          
+            // res.cookie('token', token)
             res.status(201).json({message: 'login success', userId:user._id, tokenId: token})
           }
-        });
-
       }
   });
   }
 })
 
+// Middleware for protected routes
+type AuthRequest = Request & {
+  user?: string | jwt.JwtPayload;
+}
+
+const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const token = req.header("x-auth-token");
+  console.log(token)
+  if (!token) return res.status(401).json({ msg: "No token, authorization denied" });
+
+  try {
+    const decoded = jwt.verify(token, "YOUR_SECRET");
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ msg: "Token is not valid" });
+  }
+};
 
 
-app.get('/dashboard/:id', async (req: Request, res: Response) => {
+
+app.get('/dashboard/:id', authMiddleware, async (req: Request, res: Response) => {
   const userId = req.params.id
   const user = await userInformation.findById(userId).select('username')
   if(!user){

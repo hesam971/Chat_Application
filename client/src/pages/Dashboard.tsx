@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Chats from './Chats';
-
 
 const socket = io('http://localhost:3000')
 
@@ -18,7 +17,6 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [newMessage, setNewMessage] = useState('');
   const [chatRoom, setChatRoom] = useState('')
-  const [message, setMessage] = useState('')
 
   const handleClick = () => {
     if(!newMessage || !chatRoom){
@@ -45,11 +43,11 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/dashboard/${id}`);
-        setUsername(response.data.username);
-      } catch (err) {
-        setError('Failed to fetch user details.');
+        try {
+          const response = await axios.get(`http://localhost:3000/dashboard/${id}`);
+          setUsername(response.data.username);
+        } catch (err) {
+          setError('Failed to fetch user details.');
       }
     };
 
