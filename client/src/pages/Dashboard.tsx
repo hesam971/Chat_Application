@@ -44,7 +44,11 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/dashboard/${id}`);
+          const token = localStorage.getItem("token");
+          const response = await axios.get(`http://localhost:3000/dashboard/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },});
           setUsername(response.data.username);
         } catch (err) {
           setError('Failed to fetch user details.');

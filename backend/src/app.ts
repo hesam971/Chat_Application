@@ -113,26 +113,25 @@ type AuthRequest = Request & {
 
 // Middleware for protected route
 const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.header("Authorization");
-  console.log(authHeader)
+  const authHeader = req.headers.authorization
+  
   // Check if Authorization header is provided
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
     return res.status(401).json({ msg: "No token, authorization denied" });
   }
 
   // Extract the token
   const token = authHeader.split(" ")[1];
-  console.log(token)
 
   try {
     const decoded = jwt.verify(token, "YOUR_SECRET");
+    console.log(decoded)
     req.user = decoded;
     next();
   } catch (err) {
     res.status(401).json({ msg: "Token is not valid" });
   }
 };
-
 
 
 
