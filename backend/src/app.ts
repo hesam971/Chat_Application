@@ -94,7 +94,7 @@ app.post('/login', async (req: Request, res: Response) => {
       if(!result){
         res.status(400).json({message: 'password incorrect'})
       }else{
-        const token = jwt.sign({ _id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
+        const token = jwt.sign({ _id: user._id, email:user.email }, "YOUR_SECRET", { expiresIn: "1d"});
           if(err){
             res.status(400).json({message: 'token error'})
           }else{
@@ -111,10 +111,18 @@ type AuthRequest = Request & {
   user?: string | jwt.JwtPayload;
 }
 
+// Middleware for protected route
 const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const token = req.header("x-auth-token");
+  const authHeader = req.header("Authorization");
+  console.log(authHeader)
+  // Check if Authorization header is provided
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ msg: "No token, authorization denied" });
+  }
+
+  // Extract the token
+  const token = authHeader.split(" ")[1];
   console.log(token)
-  if (!token) return res.status(401).json({ msg: "No token, authorization denied" });
 
   try {
     const decoded = jwt.verify(token, "YOUR_SECRET");
@@ -124,6 +132,7 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
     res.status(401).json({ msg: "Token is not valid" });
   }
 };
+
 
 
 

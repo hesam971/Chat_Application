@@ -19,8 +19,13 @@ function Login() {
       try {
         const response = await axios.post('http://localhost:3000/login', loginInfo)
         const {userId, tokenId} = response.data
-        localStorage.setItem("token", tokenId);
-        navigate('/dashboard/' + userId, {replace: true})
+        console.log(tokenId)
+        if(tokenId){
+          localStorage.setItem("token", tokenId);
+          navigate('/dashboard/' + userId, {replace: true})
+        }else{
+          navigate('/login' ,{replace: true})
+        }
       } catch (error: any) {
         SetError(error.response.data.message)
         clearInformation() 
