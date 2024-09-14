@@ -94,54 +94,42 @@ app.post('/login', async (req: Request, res: Response) => {
       if(!result){
         res.status(400).json({message: 'password incorrect'})
       }else{
-        const token = jwt.sign({ _id: user._id, email:user.email }, "YOUR_SECRET", { expiresIn: "1d"});
+        const token = jwt.sign({ id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
           if(err){
             res.status(400).json({message: 'token error'})
           }else{
             // res.cookie('token', token)
-            res.status(201).json({message: 'login success', userId:user._id, tokenId: token})
+            res.status(201).json({message: 'login success', tokenId: token})
           }
       }
   });
   }
 })
 
-// Middleware for protected routes
-type AuthRequest = Request & {
-  user?: string | jwt.JwtPayload;
-}
 
-// Middleware for protected route
-const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+
+app.get('/dashboard', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization
   
   // Check if Authorization header is provided
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
+  if ( !authHeader ) {
     return res.status(401).json({ msg: "No token, authorization denied" });
-  }
-
-  // Extract the token
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, "YOUR_SECRET");
-    console.log(decoded)
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ msg: "Token is not valid" });
-  }
-};
-
-
-
-app.get('/dashboard/:id', authMiddleware, async (req: Request, res: Response) => {
-  const userId = req.params.id
-  const user = await userInformation.findById(userId).select('username')
-  if(!user){
-    res.status(400).json({message:'user is not exist'})
   }else{
-    res.status(201).json({message: 'login success', username:user.username})
+    try {
+      const decoded = jwt.verify(authHeader, "YOUR_SECRET");
+      if (typeof decoded !== 'string' && 'id' in decoded) {
+
+        const user = await userInformation.findById(decoded.id).select('username')
+        if(!user){
+          res.status(400).json({message:'user is not exist'})
+        }else{
+          res.status(201).json({message: 'login success', username:user.username})
+        }
+        
+      }
+    } catch (err) {
+      res.status(401).json({ msg: "Token is not valid" });
+    }
   }
 })
 

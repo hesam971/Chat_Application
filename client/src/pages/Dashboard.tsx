@@ -45,10 +45,7 @@ function Dashboard() {
     const fetchUserDetails = async () => {
         try {
           const token = localStorage.getItem("token");
-          const response = await axios.get(`http://localhost:3000/dashboard/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },});
+          const response = await axios.get(`http://localhost:3000/dashboard`, { headers: { Authorization: token }});
           setUsername(response.data.username);
         } catch (err) {
           setError('Failed to fetch user details.');
@@ -57,8 +54,6 @@ function Dashboard() {
 
     fetchUserDetails();
   }, [id]);
-
-
 
 
 

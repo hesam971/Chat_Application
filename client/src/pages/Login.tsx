@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom' 
 
 
-function Login() {
+function Login({ setAuth }: { setAuth: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [email, SetEmail] = useState('')
   const [password, SetPassowrd] = useState('')
   const [error, SetError] = useState('')
@@ -12,20 +12,17 @@ function Login() {
   async function loginInformation(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if(!email || !password){
-      SetError('Please fill in all fields')
+      SetError('Please fill all fields')
       clearInformation() 
     }else{
       const loginInfo = {email, password}
       try {
         const response = await axios.post('http://localhost:3000/login', loginInfo)
-        const {userId, tokenId} = response.data
-        console.log(tokenId)
-        if(tokenId){
-          localStorage.setItem("token", tokenId);
-          navigate('/dashboard/' + userId, {replace: true})
-        }else{
-          navigate('/login' ,{replace: true})
-        }
+        const {tokenId} = response.data
+        localStorage.setItem("token", tokenId);
+        setAuth(true)
+        navigate('/dashboard' ,{replace: true})
+
       } catch (error: any) {
         SetError(error.response.data.message)
         clearInformation() 
