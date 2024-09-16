@@ -12,20 +12,20 @@ import cookieParser from 'cookie-parser';
 
 // Create an Express application
 const app = express();
+
+
+app.use(cors());
+
 app.use(cookieParser());
-
-app.use(cors({
-  credentials: true
-}));
-
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: 'http://localhost:5173',
     methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -94,12 +94,17 @@ app.post('/login', async (req: Request, res: Response) => {
       if(!result){
         res.status(400).json({message: 'password incorrect'})
       }else{
-        const token = jwt.sign({ id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
           if(err){
             res.status(400).json({message: 'token error'})
           }else{
-            // res.cookie('token', token)
-            res.status(201).json({message: 'login success', tokenId: token})
+            const token = jwt.sign({ id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
+            
+            console.log(req.cookies)
+            // Set the token in an HTTP-only cookie
+            //res.cookie("cookie", 'token', { httpOnly: true,maxAge: 3600000 });
+
+            res.status(201).cookie("cookie", token, { httpOnly: true,maxAge: 3600000 })
+            .json({message: 'login success', tokenId: token})
           }
       }
   });

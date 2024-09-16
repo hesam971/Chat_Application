@@ -22,10 +22,10 @@ const App = () => {
 
     <BrowserRouter>
     <Routes>
-      <Route path="/register" element={isAuthenticated ? <Dashboard /> : <Register /> } />
-      <Route path="/login" element={isAuthenticated ? <Dashboard />  : <Login setAuth={setIsAuthenticated} />  } />
-      <Route path="/dashboard" element={isAuthenticated ? <Dashboard />  : <Register />  } />
-      <Route path="/" element={isAuthenticated ? <Dashboard />  : <Register />  } />
+      <Route path="/register" element={isAuthenticated ? <Dashboard setAuth={setIsAuthenticated} /> : <Register /> } />
+      <Route path="/login" element={isAuthenticated ? <Dashboard setAuth={setIsAuthenticated} />  : <Login setAuth={setIsAuthenticated} />  } />
+      <Route path="/dashboard" element={isAuthenticated ? <Dashboard setAuth={setIsAuthenticated} />  : <Register />  } />
+      <Route path="/" element={isAuthenticated ? <Dashboard setAuth={setIsAuthenticated} />  : <Register />  } />
     </Routes>
   </BrowserRouter>
   

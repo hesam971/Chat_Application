@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Chats from './Chats';
 
@@ -11,12 +11,13 @@ type Params = {
 }
 
 
-function Dashboard() {
+function Dashboard({ setAuth }: { setAuth: React.Dispatch<React.SetStateAction<boolean>> }) {
   const { id } = useParams<Params>();
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [newMessage, setNewMessage] = useState('');
   const [chatRoom, setChatRoom] = useState('')
+  const navigate = useNavigate()
 
   const handleClick = () => {
     if(!newMessage || !chatRoom){
@@ -55,6 +56,13 @@ function Dashboard() {
     fetchUserDetails();
   }, [id]);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    navigate('/login')
+    setAuth(false)
+    console.log('bye')
+  }
+
 
 
 
@@ -74,6 +82,7 @@ function Dashboard() {
       <input type="text" placeholder='join the chat Room' value={chatRoom} onChange={(prev) => {setChatRoom(prev.target.value)}} />
       <button onClick={handleClick}>Join</button>
       <Chats socket={socket} username={username} chatRoom={chatRoom} />
+      <button onClick={logout}>Logout</button>
 
     </div>
   );
