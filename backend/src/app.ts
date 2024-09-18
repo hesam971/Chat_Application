@@ -97,14 +97,8 @@ app.post('/login', async (req: Request, res: Response) => {
           if(err){
             res.status(400).json({message: 'token error'})
           }else{
-            const token = jwt.sign({ id: user._id }, "YOUR_SECRET", { expiresIn: "1d"});
-            
-            console.log(req.cookies)
-            // Set the token in an HTTP-only cookie
-            //res.cookie("cookie", 'token', { httpOnly: true,maxAge: 3600000 });
-
-            res.status(201).cookie("cookie", token, { httpOnly: true,maxAge: 3600000 })
-            .json({message: 'login success', tokenId: token})
+            const token = jwt.sign({ id: user._id }, "YOUR_SECRET");
+            res.status(200).json({message: 'login success', tokenId: token})
           }
       }
   });
@@ -112,9 +106,9 @@ app.post('/login', async (req: Request, res: Response) => {
 })
 
 
-
 app.get('/dashboard', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization
+
   
   // Check if Authorization header is provided
   if ( !authHeader ) {
