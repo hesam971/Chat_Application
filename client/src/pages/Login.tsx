@@ -17,7 +17,7 @@ function Login({ setAuth }: { setAuth: React.Dispatch<React.SetStateAction<boole
     } else {
       const loginInfo = { email, password }
       try {
-        const response = await axios.post('http://localhost:3000/login', loginInfo)
+        const response = await axios.post('http://localhost:3000/login', loginInfo, {withCredentials: true})
         const { tokenId } = response.data
         localStorage.setItem("token", tokenId)
         setAuth(true)

@@ -13,21 +13,21 @@ import cookieParser from 'cookie-parser';
 // Create an Express application
 const app = express();
 
+const option = {
+  origin: 'http://localhost:5173',
+  methods: ["GET", "POST"],
+  credentials: true
+}
 
-app.use(cors());
+
+app.use(cors(option));
 
 app.use(cookieParser());
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:5173',
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
+const io = new Server(server, { cors: option });
 
 
 type UserInfo = {
@@ -36,8 +36,6 @@ type UserInfo = {
   email: string;
   password: string;
 };
-
-
 
 
 // Connect to the database
@@ -98,7 +96,9 @@ app.post('/login', async (req: Request, res: Response) => {
             res.status(400).json({message: 'token error'})
           }else{
             const token = jwt.sign({ id: user._id }, "YOUR_SECRET");
-            res.status(200).json({message: 'login success', tokenId: token})
+            res.status(200).
+            cookie("access_token", token, { secure: true, sameSite: 'none', httpOnly: true }).
+            json({ message: 'login success', tokenId: token });
           }
       }
   });
@@ -155,9 +155,6 @@ io.on('connection', (socket) => {
       console.log('A user disconnected:', socket.id);
     })  
 });
-
-
-
 
 
 
